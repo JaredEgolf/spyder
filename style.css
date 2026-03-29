@@ -360,6 +360,13 @@ button:active {
 
 #win-message p { margin: 8px 0; color: #555; }
 
+#win-time {
+  font-size: 1.6em;
+  font-weight: 700;
+  color: #2e7d32;
+  margin-top: 12px;
+}
+
 #win-message button {
   margin-top: 20px;
   padding: 12px 30px;

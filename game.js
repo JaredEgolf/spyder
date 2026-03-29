@@ -267,6 +267,7 @@ class GameUI {
     this.hintTimeout = null;
     this.timerInterval = null;
     this.elapsedSeconds = 0;
+    this.timerStarted = false;
 
     this._onPointerMove = this._onPointerMove.bind(this);
     this._onPointerUp   = this._onPointerUp.bind(this);
@@ -323,16 +324,22 @@ class GameUI {
     this.selection = null;
     this.dragState = null;
     this._clearHint();
-    this._startTimer();
+    this._resetTimer();
     this.render();
   }
 
   // ---- timer ----
 
-  _startTimer() {
-    if (this.timerInterval) clearInterval(this.timerInterval);
+  _resetTimer() {
+    this._stopTimer();
     this.elapsedSeconds = 0;
+    this.timerStarted = false;
     this._renderTimer();
+  }
+
+  _startTimer() {
+    if (this.timerStarted) return;
+    this.timerStarted = true;
     this.timerInterval = setInterval(() => {
       this.elapsedSeconds++;
       this._renderTimer();
@@ -579,6 +586,7 @@ class GameUI {
     if (targetCol >= 0 && targetCol !== ds.srcCol) {
       const result = this.game.moveCards(ds.srcCol, ds.cardIdx, targetCol);
       if (result) {
+        this._startTimer();
         this.render();
         if (this.game.gameWon) this._showWin();
         return;
@@ -629,6 +637,7 @@ class GameUI {
     if (!this.selection) return;
     const { col, cardIdx } = this.selection;
     const result = this.game.moveCards(col, cardIdx, destCol);
+    if (result) this._startTimer();
     this._clearSelection();
     this.render();
     if (result && this.game.gameWon) this._showWin();
@@ -649,6 +658,7 @@ class GameUI {
       }
       return;
     }
+    this._startTimer();
     this.game.dealStock();
     this.render();
     if (this.game.gameWon) this._showWin();
@@ -712,7 +722,8 @@ class GameUI {
     this._stopTimer();
     const overlay = document.getElementById('win-overlay');
     document.getElementById('win-stats').textContent =
-      `Score: ${this.game.score}  •  Moves: ${this.game.moveCount}  •  Time: ${this._formatTime()}`;
+      `Score: ${this.game.score}  •  Moves: ${this.game.moveCount}`;
+    document.getElementById('win-time').textContent = `⏱ ${this._formatTime()}`;
     overlay.classList.remove('hidden');
   }
 
