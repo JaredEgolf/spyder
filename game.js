@@ -266,8 +266,7 @@ class GameUI {
     this.selection = null;   // { col, cardIdx }
     this.hintTimeout = null;
     this.timerInterval = null;
-    this.elapsedSeconds = 0;
-    this.timerStarted = false;
+    this.timerStartTime = null;
 
     this._onPointerMove = this._onPointerMove.bind(this);
     this._onPointerUp   = this._onPointerUp.bind(this);
@@ -332,18 +331,14 @@ class GameUI {
 
   _resetTimer() {
     this._stopTimer();
-    this.elapsedSeconds = 0;
-    this.timerStarted = false;
+    this.timerStartTime = null;
     this._renderTimer();
   }
 
   _startTimer() {
-    if (this.timerStarted) return;
-    this.timerStarted = true;
-    this.timerInterval = setInterval(() => {
-      this.elapsedSeconds++;
-      this._renderTimer();
-    }, 1000);
+    if (this.timerStartTime) return;
+    this.timerStartTime = Date.now();
+    this.timerInterval = setInterval(() => this._renderTimer(), 1000);
   }
 
   _stopTimer() {
@@ -353,16 +348,23 @@ class GameUI {
     }
   }
 
+  _getElapsed() {
+    if (!this.timerStartTime) return 0;
+    return Math.floor((Date.now() - this.timerStartTime) / 1000);
+  }
+
   _renderTimer() {
-    const mins = Math.floor(this.elapsedSeconds / 60);
-    const secs = this.elapsedSeconds % 60;
+    const total = this._getElapsed();
+    const mins = Math.floor(total / 60);
+    const secs = total % 60;
     document.getElementById('timer-display').textContent =
       `Time: ${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
   _formatTime() {
-    const mins = Math.floor(this.elapsedSeconds / 60);
-    const secs = this.elapsedSeconds % 60;
+    const total = this._getElapsed();
+    const mins = Math.floor(total / 60);
+    const secs = total % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
@@ -461,6 +463,7 @@ class GameUI {
   _renderStats() {
     document.getElementById('score-display').textContent = `Score: ${this.game.score}`;
     document.getElementById('moves-display').textContent = `Moves: ${this.game.moveCount}`;
+    this._renderTimer();
   }
 
   // ---- pointer / drag & drop ----
