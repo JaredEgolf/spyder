@@ -265,6 +265,8 @@ class GameUI {
     this.dragState = null;
     this.selection = null;   // { col, cardIdx }
     this.hintTimeout = null;
+    this.timerInterval = null;
+    this.elapsedSeconds = 0;
 
     this._onPointerMove = this._onPointerMove.bind(this);
     this._onPointerUp   = this._onPointerUp.bind(this);
@@ -321,7 +323,40 @@ class GameUI {
     this.selection = null;
     this.dragState = null;
     this._clearHint();
+    this._startTimer();
     this.render();
+  }
+
+  // ---- timer ----
+
+  _startTimer() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.elapsedSeconds = 0;
+    this._renderTimer();
+    this.timerInterval = setInterval(() => {
+      this.elapsedSeconds++;
+      this._renderTimer();
+    }, 1000);
+  }
+
+  _stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  _renderTimer() {
+    const mins = Math.floor(this.elapsedSeconds / 60);
+    const secs = this.elapsedSeconds % 60;
+    document.getElementById('timer-display').textContent =
+      `Time: ${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  _formatTime() {
+    const mins = Math.floor(this.elapsedSeconds / 60);
+    const secs = this.elapsedSeconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
   // ---- rendering ----
@@ -674,9 +709,10 @@ class GameUI {
   // ---- win ----
 
   _showWin() {
+    this._stopTimer();
     const overlay = document.getElementById('win-overlay');
     document.getElementById('win-stats').textContent =
-      `Score: ${this.game.score}  •  Moves: ${this.game.moveCount}`;
+      `Score: ${this.game.score}  •  Moves: ${this.game.moveCount}  •  Time: ${this._formatTime()}`;
     overlay.classList.remove('hidden');
   }
 

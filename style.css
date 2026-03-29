@@ -7,11 +7,11 @@
 }
 
 :root {
-  --card-width: 80px;
-  --card-height: 115px;
-  --card-radius: 6px;
-  --fd-overlap: 14px;
-  --fu-overlap: 28px;
+  --card-width: 100px;
+  --card-height: 140px;
+  --card-radius: 8px;
+  --fd-overlap: 16px;
+  --fu-overlap: 32px;
   --felt: #1a6b3c;
   --felt-dark: #145a30;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -279,9 +279,9 @@ button:active {
 /* Card content */
 .card-corner {
   position: absolute;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.15;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .top-left {
@@ -300,7 +300,7 @@ button:active {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 28px;
+  font-size: 36px;
 }
 
 /* Suit colours */
@@ -410,8 +410,8 @@ button:active {
   }
   #header h1 { font-size: 1em; }
   #tableau { gap: 4px; padding: 0 10px 20px; }
-  .card-center { font-size: 22px; }
-  .card-corner { font-size: 10px; }
+  .card-center { font-size: 28px; }
+  .card-corner { font-size: 12px; font-weight: 800; }
 }
 
 @media (max-width: 720px) {
@@ -432,8 +432,8 @@ button:active {
   .header-right { justify-content: center; }
   #top-area { flex-wrap: wrap; justify-content: center; padding: 6px 10px; }
   #tableau { gap: 3px; padding: 0 6px 16px; }
-  .card-center { font-size: 18px; }
-  .card-corner { font-size: 9px; }
+  .card-center { font-size: 22px; }
+  .card-corner { font-size: 10px; font-weight: 800; }
   .suit-btn { padding: 5px 8px; font-size: 0.75em; }
   button { padding: 5px 10px; font-size: 0.8em; }
 }
@@ -447,7 +447,7 @@ button:active {
     --card-radius: 3px;
   }
   .card-center { font-size: 13px; }
-  .card-corner { font-size: 7px; }
+  .card-corner { font-size: 7px; font-weight: 800; }
   .top-left { top: 1px; left: 2px; }
   .bottom-right { bottom: 1px; right: 2px; }
   #tableau { gap: 2px; padding: 0 4px 12px; }
