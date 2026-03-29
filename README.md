@@ -2,7 +2,7 @@
 
 A classic Spider Solitaire card game playable directly in your browser — no install needed.
 
-**[▶ Play Now](https://jared.github.io/spyder_solitaire/)** *(update URL after enabling GitHub Pages)*
+**[▶ Play Now](https://jaredegolf.github.io/spyder/)**
 
 ## Features
 
@@ -36,7 +36,7 @@ A classic Spider Solitaire card game playable directly in your browser — no in
 1. Push this repo to GitHub
 2. Go to **Settings → Pages**
 3. Set source to **Deploy from a branch** → `main` / `/ (root)`
-4. Your game will be live at `https://<username>.github.io/spyder_solitaire/`
+4. Your game will be live at `https://<username>.github.io/spyder/`
 
 ## License
 
