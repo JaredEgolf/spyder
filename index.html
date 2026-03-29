@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spider Solitaire</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕷️</text></svg>">
+</head>
+<body>
+  <div id="game-container">
+    <header id="header">
+      <div class="header-left">
+        <h1>🕷️ Spider Solitaire</h1>
+      </div>
+      <div class="header-center">
+        <span id="score-display">Score: 500</span>
+        <span id="moves-display">Moves: 0</span>
+      </div>
+      <div class="header-right">
+        <button id="undo-btn" title="Undo (Ctrl+Z)">↩ Undo</button>
+        <button id="hint-btn" title="Hint (H)">💡 Hint</button>
+        <button id="new-game-btn" title="New Game (N)">🔄 New Game</button>
+      </div>
+    </header>
+
+    <div id="top-area">
+      <div id="stock-area" title="Click to deal (all columns must have cards)">
+      </div>
+      <div id="suits-selector">
+        <button class="suit-btn active" data-suits="1">1 Suit ♠</button>
+        <button class="suit-btn" data-suits="2">2 Suits ♠♥</button>
+        <button class="suit-btn" data-suits="4">4 Suits ♠♥♦♣</button>
+      </div>
+      <div id="completed-area">
+      </div>
+    </div>
+
+    <div id="tableau">
+      <div class="column" id="col-0"></div>
+      <div class="column" id="col-1"></div>
+      <div class="column" id="col-2"></div>
+      <div class="column" id="col-3"></div>
+      <div class="column" id="col-4"></div>
+      <div class="column" id="col-5"></div>
+      <div class="column" id="col-6"></div>
+      <div class="column" id="col-7"></div>
+      <div class="column" id="col-8"></div>
+      <div class="column" id="col-9"></div>
+    </div>
+  </div>
+
+  <div id="win-overlay" class="hidden">
+    <div id="win-message">
+      <h2>🎉 Congratulations!</h2>
+      <p>You won Spider Solitaire!</p>
+      <p id="win-stats"></p>
+      <button id="play-again-btn">🔄 Play Again</button>
+    </div>
+  </div>
+
+  <div id="toast" class="hidden"></div>
+
+  <script src="game.js"></script>
+</body>
+</html>
