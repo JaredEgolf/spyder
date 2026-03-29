@@ -2,7 +2,7 @@
 
 A classic Spider Solitaire card game playable directly in your browser — no install needed.
 
-**[▶ Play Now](https://jaredegolf.github.io/spyder/)** *(update URL after enabling GitHub Pages)*
+**[▶ Play Now](https://jaredegolf.github.io/spyder/)**
 
 ## Features
 
