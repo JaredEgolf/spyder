@@ -22,6 +22,7 @@ body {
   background: radial-gradient(ellipse at center, var(--felt), var(--felt-dark));
   min-height: 100vh;
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 20px;
   overflow-x: hidden;
   user-select: none;
   -webkit-user-select: none;
@@ -279,7 +280,7 @@ button:active {
 /* Card content */
 .card-corner {
   position: absolute;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.15;
   font-weight: 800;
 }
@@ -300,7 +301,7 @@ button:active {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 36px;
+  font-size: 46px;
 }
 
 /* Suit colours */
@@ -417,8 +418,8 @@ button:active {
   }
   #header h1 { font-size: 1em; }
   #tableau { gap: 4px; padding: 0 10px 20px; }
-  .card-center { font-size: 28px; }
-  .card-corner { font-size: 12px; font-weight: 800; }
+  .card-center { font-size: 36px; }
+  .card-corner { font-size: 15px; font-weight: 800; }
 }
 
 @media (max-width: 720px) {
@@ -439,8 +440,8 @@ button:active {
   .header-right { justify-content: center; }
   #top-area { flex-wrap: wrap; justify-content: center; padding: 6px 10px; }
   #tableau { gap: 3px; padding: 0 6px 16px; }
-  .card-center { font-size: 22px; }
-  .card-corner { font-size: 10px; font-weight: 800; }
+  .card-center { font-size: 28px; }
+  .card-corner { font-size: 13px; font-weight: 800; }
   .suit-btn { padding: 5px 8px; font-size: 0.75em; }
   button { padding: 5px 10px; font-size: 0.8em; }
 }
@@ -453,8 +454,8 @@ button:active {
     --fu-overlap: 14px;
     --card-radius: 3px;
   }
-  .card-center { font-size: 13px; }
-  .card-corner { font-size: 7px; font-weight: 800; }
+  .card-center { font-size: 16px; }
+  .card-corner { font-size: 9px; font-weight: 800; }
   .top-left { top: 1px; left: 2px; }
   .bottom-right { bottom: 1px; right: 2px; }
   #tableau { gap: 2px; padding: 0 4px 12px; }
