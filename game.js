@@ -559,6 +559,7 @@ class GameUI {
 
     ghost.style.left = rect.left + 'px';
     ghost.style.top  = rect.top + 'px';
+    ghost.style.width = rect.width + 'px';
     document.body.appendChild(ghost);
 
     // Dim source cards
