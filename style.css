@@ -50,6 +50,12 @@ body {
   white-space: nowrap;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .header-center {
   display: flex;
   gap: 20px;
