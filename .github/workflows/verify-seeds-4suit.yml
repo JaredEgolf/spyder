@@ -50,21 +50,29 @@ jobs:
             --suits 4 \
             --count ${{ inputs.count }} \
             --start ${{ steps.start.outputs.seed }} \
+            --timeout 220 \
             --output seeds-4suit.json
 
       - name: Show results
-        run: cat seeds-4suit.json
+        if: always()
+        run: cat seeds-4suit.json 2>/dev/null || echo "(no output file)"
 
       - name: Patch game.js (merge with existing)
-        run: node tools/patch-seeds.js --suits 4 --seeds seeds-4suit.json --merge
+        if: always()
+        run: |
+          [ -f seeds-4suit.json ] && \
+            node tools/patch-seeds.js --suits 4 --seeds seeds-4suit.json --merge || \
+            echo "No seeds file to patch"
 
       - name: Upload seeds artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: seeds-4suit
           path: seeds-4suit.json
 
       - name: Commit updated seeds
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -32,12 +32,15 @@ function getArg(name, def) {
   const i = args.indexOf('--' + name);
   return i >= 0 ? args[i + 1] : def;
 }
-const NUM_SUITS  = parseInt(getArg('suits',  '1'));
-const TARGET     = parseInt(getArg('count',  '100'));
-const START_SEED = parseInt(getArg('start',  '0'));
-const N_TRIALS   = parseInt(getArg('trials', '30'));
-const MAX_STEPS  = parseInt(getArg('steps',  '1500'));
+const NUM_SUITS  = parseInt(getArg('suits',   '1'));
+const TARGET     = parseInt(getArg('count',   '100'));
+const START_SEED = parseInt(getArg('start',   '0'));
+const N_TRIALS   = parseInt(getArg('trials',  '30'));
+const MAX_STEPS  = parseInt(getArg('steps',   '1500'));
 const OUTPUT     = getArg('output', null);
+// --timeout <minutes>: stop collecting and write results after N minutes.
+// Lets the process exit cleanly before a CI job ceiling kills it.
+const TIMEOUT_MS = getArg('timeout', null) ? parseInt(getArg('timeout')) * 60_000 : null;
 
 if (![1, 2, 4].includes(NUM_SUITS)) {
   console.error('--suits must be 1, 2, or 4');
@@ -501,22 +504,29 @@ let nextSeed    = START_SEED;
 let tried       = 0;
 let done        = false;
 
-function finish() {
+function finish(reason) {
   if (done) return;
   done = true;
   // Terminate any workers still running
   for (const w of activeWorkers) w.terminate();
   activeWorkers.clear();
 
-  const result = JSON.stringify(verified.slice(0, TARGET).sort((a, b) => a - b), null, 2);
+  const out = verified.slice(0, TARGET).sort((a, b) => a - b);
+  const result = JSON.stringify(out, null, 2);
   if (OUTPUT) {
     fs.writeFileSync(OUTPUT, result, 'utf8');
-    process.stderr.write(`\nWrote ${TARGET} seeds to ${OUTPUT}\n`);
+    process.stderr.write(`\nWrote ${out.length} seeds to ${OUTPUT}${reason ? ' (' + reason + ')' : ''}\n`);
   } else {
     console.log(result);
   }
   process.stderr.write(`Done. Tried ${tried} seeds to find ${verified.length} verified.\n`);
   process.exit(0);
+}
+
+// Soft deadline: stop early so CI can upload artifacts before the job ceiling
+if (TIMEOUT_MS !== null) {
+  setTimeout(() => finish('timeout'), TIMEOUT_MS).unref();
+  process.stderr.write(`Timeout set: will stop after ${getArg('timeout')} minutes.\n`);
 }
 
 function spawnWorker(seed) {
