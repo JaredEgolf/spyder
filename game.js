@@ -5,15 +5,33 @@
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const SUIT_SYM = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣' };
 
+// Seeded PRNG (mulberry32) – deterministic shuffles for reproducible deals
+function mulberry32(seed) {
+  return function () {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// Verified-solvable seeds per difficulty.  Grow this list with tools/verify-seeds.js.
+const VERIFIED_SEEDS = {
+  1: [0,4,7,9,17,23,24,28,30,35,36,42,43,50,54,55,57,67,82,84,87,88,89,94,95,100,112,121,126,138,139,145,152,161,163,174,177,197,198,200,202,210,213,215,217,222,223,225,227,230],
+  2: [0,1,4,6,7,9,11,12,16,17,18,20,22,24,26,28,30,31,32,33,34,35,36,39,40,42,44,45,46,47,49,50,51,52,53,56,57,59,60,63,64,65,66,67,68,69,70,74,75,76],
+  4: [],
+};
+
 // ========================  Game Logic  ========================
 
 class SpiderSolitaire {
-  constructor(numSuits = 1) {
+  constructor(numSuits = 1, seed) {
     this.numSuits = numSuits;
-    this.reset();
+    this.reset(seed);
   }
 
-  reset() {
+  reset(seed) {
+    this.seed     = (seed !== undefined) ? seed : Math.floor(Math.random() * 1_000_000);
     this.tableau  = Array.from({ length: 10 }, () => []);
     this.stock    = [];
     this.completed = 0;
@@ -22,8 +40,9 @@ class SpiderSolitaire {
     this.history   = [];
     this.gameWon   = false;
 
+    const rand = mulberry32(this.seed);
     const deck = this._buildDeck();
-    this._shuffle(deck);
+    this._shuffle(deck, rand);
     this._deal(deck);
   }
 
@@ -46,9 +65,9 @@ class SpiderSolitaire {
     return ['spades','spades','hearts','hearts','diamonds','diamonds','clubs','clubs'];
   }
 
-  _shuffle(arr) {
+  _shuffle(arr, rand) {
     for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(rand() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
   }
@@ -287,6 +306,12 @@ class GameUI {
     });
     document.getElementById('stock-area').addEventListener('click', () => this._dealStock());
 
+    // Click seed display to copy seed to clipboard
+    document.getElementById('seed-display').addEventListener('click', () => {
+      const seed = String(this.game.seed);
+      navigator.clipboard.writeText(seed).then(() => this._toast(`Seed ${seed} copied!`));
+    });
+
     // Event delegation for column clicks (handles empty-column drops)
     document.getElementById('tableau').addEventListener('click', (e) => {
       const colEl = e.target.closest('.column');
@@ -317,9 +342,14 @@ class GameUI {
     });
   }
 
-  newGame(numSuits) {
+  newGame(numSuits, seed) {
     this.numSuits = numSuits;
-    this.game = new SpiderSolitaire(numSuits);
+    // Pick from verified library if available and no explicit seed given
+    if (seed === undefined && VERIFIED_SEEDS[numSuits] && VERIFIED_SEEDS[numSuits].length > 0) {
+      const list = VERIFIED_SEEDS[numSuits];
+      seed = list[Math.floor(Math.random() * list.length)];
+    }
+    this.game = new SpiderSolitaire(numSuits, seed);
     this.selection = null;
     this.dragState = null;
     this._clearHint();
@@ -463,6 +493,7 @@ class GameUI {
   _renderStats() {
     document.getElementById('score-display').textContent = `Score: ${this.game.score}`;
     document.getElementById('moves-display').textContent = `Moves: ${this.game.moveCount}`;
+    document.getElementById('seed-display').textContent  = `Seed: ${this.game.seed}`;
     this._renderTimer();
   }
 

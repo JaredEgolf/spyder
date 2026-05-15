@@ -63,6 +63,16 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+#seed-display {
+  cursor: pointer;
+  opacity: 0.8;
+  border-bottom: 1px dotted rgba(255,255,255,0.5);
+}
+
+#seed-display:hover {
+  opacity: 1;
+}
+
 .header-right {
   display: flex;
   gap: 8px;
