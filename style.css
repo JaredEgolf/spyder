@@ -68,6 +68,10 @@ body {
   gap: 8px;
 }
 
+#hint-btn {
+  margin-left: 70px;
+}
+
 button {
   padding: 6px 14px;
   border: none;
