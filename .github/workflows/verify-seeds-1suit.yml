@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       count:
-        description: Number of verified seeds to collect
+        description: Number of NEW verified seeds to add
         default: '50'
         required: false
       start:
-        description: First seed number to try
-        default: '0'
+        description: 'First seed to try (leave blank to auto-continue from last run)'
+        default: ''
         required: false
 
 jobs:
@@ -26,19 +26,36 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Determine start seed
+        id: start
+        run: |
+          if [ -n "${{ inputs.start }}" ]; then
+            echo "seed=${{ inputs.start }}" >> "$GITHUB_OUTPUT"
+          else
+            # Auto-continue: start from one past the highest seed already in game.js
+            NEXT=$(node -e "
+              const src = require('fs').readFileSync('game.js','utf8');
+              const m = src.match(/1:\s*\[([\d,\s]*)\]/);
+              const arr = m && m[1].trim() ? m[1].split(',').map(Number) : [];
+              console.log(arr.length ? Math.max(...arr) + 1 : 0);
+            ")
+            echo "seed=$NEXT" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Find verified seeds
         run: |
+          echo "Starting from seed ${{ steps.start.outputs.seed }}"
           node tools/verify-seeds.js \
             --suits 1 \
             --count ${{ inputs.count }} \
-            --start ${{ inputs.start }} \
+            --start ${{ steps.start.outputs.seed }} \
             --output seeds-1suit.json
 
       - name: Show results
         run: cat seeds-1suit.json
 
-      - name: Patch game.js
-        run: node tools/patch-seeds.js --suits 1 --seeds seeds-1suit.json
+      - name: Patch game.js (merge with existing)
+        run: node tools/patch-seeds.js --suits 1 --seeds seeds-1suit.json --merge
 
       - name: Upload seeds artifact
         uses: actions/upload-artifact@v4
