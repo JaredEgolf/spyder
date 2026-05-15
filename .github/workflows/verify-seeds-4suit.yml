@@ -1,0 +1,57 @@
+name: Verify Seeds – 4 Suit
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: Number of verified seeds to collect
+        default: '20'
+        required: false
+      start:
+        description: First seed number to try
+        default: '0'
+        required: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    # 4-suit is very hard: each seed can take up to ~50s at full node budget.
+    # Default target is 20 seeds; use a 4-hour ceiling to be safe.
+    timeout-minutes: 240
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Find verified seeds
+        run: |
+          node tools/verify-seeds.js \
+            --suits 4 \
+            --count ${{ inputs.count }} \
+            --start ${{ inputs.start }} \
+            --output seeds-4suit.json
+
+      - name: Show results
+        run: cat seeds-4suit.json
+
+      - name: Patch game.js
+        run: node tools/patch-seeds.js --suits 4 --seeds seeds-4suit.json
+
+      - name: Upload seeds artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeds-4suit
+          path: seeds-4suit.json
+
+      - name: Commit updated seeds
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add game.js
+          git diff --staged --quiet && echo "No changes to commit" || \
+            git commit -m "chore: update verified 4-suit seeds [skip ci]" && git push
