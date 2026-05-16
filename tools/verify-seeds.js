@@ -337,12 +337,16 @@ function evaluateState(tableau, completed, numSuits) {
 // K→A same-suit sequences via drainComplete — no correctness impact.
 // ---------------------------------------------------------------------------
 function beamSolve(numSuits, seed, noiseSeed = null) {
-  const BEAM_WIDTH = numSuits <= 2 ? 1200 : 2000;
-  const MAX_NODES  = numSuits <= 2 ? 5000000 : 8000000;
+  // 1-suit beam fallback: greedy already handles easy seeds; this covers
+  // harder ones.  2M nodes is enough for 1-suit solutions found so far and
+  // keeps unsolvable-seed cost reasonable (~15-30s vs 40-160s at 5M).
+  const BEAM_WIDTH = numSuits === 1 ? 800  : numSuits <= 2 ? 1200 : 2000;
+  const MAX_NODES  = numSuits === 1 ? 2000000 : numSuits <= 2 ? 5000000 : 8000000;
 
   // Larger hash table for harder difficulties dramatically reduces collision
   // rate, improving state-deduplication quality.  Memory per worker:
-  //   2-suit  2^20 = 1M slots ≈  8 MB
+  //   1-suit  2^20 = 1M slots   ≈  8 MB  (~2 collisions/slot at 2M nodes)
+  //   2-suit  2^20 = 1M slots   ≈  8 MB
   //   3-suit  2^21 = 2M slots ≈ 16 MB
   //   4-suit  2^22 = 4M slots ≈ 32 MB  (was 2^20 = ~8 collisions/slot)
   const TABLE_BITS = numSuits === 4 ? 22 : numSuits === 3 ? 21 : 20;
@@ -467,23 +471,24 @@ function playTrial(tableau, stock, noiseRng, randomPlay) {
 }
 
 // ---------------------------------------------------------------------------
-// Verify a seed: true if any trial succeeds
+// Verify a seed: true if any approach finds a winning line.
+// 1-suit: greedy trials first (fast, finds easy seeds), then beam search
+//         as a fallback for seeds greedy misses.
+// 2/3/4-suit: beam search only (greedy is too weak for multi-suit).
 // ---------------------------------------------------------------------------
 function verifySeed(numSuits, seed) {
-  // Beam search handles 2-suit, 3-suit, and 4-suit; greedy trials for 1-suit.
-  if (numSuits > 1) return beamSolve(numSuits, seed);
-
-  const { tableau: t0, stock: s0 } = makeDeal(numSuits, seed);
-
-  for (let t = 0; t < N_TRIALS; t++) {
-    // First 60% greedy + lookahead, last 40% random for path diversity
-    const rng = mulberry32(seed * 999983 + t * 7919);
-    const isRandom = t >= Math.ceil(N_TRIALS * 0.6);
-    const noiseRng = t === 0 ? null : rng;
-    const { tableau, stock } = cloneState(t0, s0);
-    if (playTrial(tableau, stock, noiseRng, isRandom)) return true;
+  if (numSuits === 1) {
+    const { tableau: t0, stock: s0 } = makeDeal(numSuits, seed);
+    for (let t = 0; t < N_TRIALS; t++) {
+      const rng = mulberry32(seed * 999983 + t * 7919);
+      const isRandom = t >= Math.ceil(N_TRIALS * 0.6);
+      const noiseRng = t === 0 ? null : rng;
+      const { tableau, stock } = cloneState(t0, s0);
+      if (playTrial(tableau, stock, noiseRng, isRandom)) return true;
+    }
+    // Greedy exhausted — fall back to beam search for harder seeds
   }
-  return false;
+  return beamSolve(numSuits, seed);
 }
 
 // ---------------------------------------------------------------------------
