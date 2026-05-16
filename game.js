@@ -455,9 +455,9 @@ class GameUI {
       const r = RANKS[card.rank - 1];
       const s = SUIT_SYM[card.suit];
       el.innerHTML =
-        `<span class="card-corner top-left">${r}<br>${s}</span>` +
+        `<span class="card-corner top-left">${r}${s}</span>` +
         `<span class="card-center">${s}</span>` +
-        `<span class="card-corner bottom-right">${r}<br>${s}</span>`;
+        `<span class="card-corner bottom-right">${r}${s}</span>`;
 
       el.addEventListener('pointerdown', (e) => this._onPointerDown(e, colIdx, cardIdx));
     }
@@ -584,9 +584,9 @@ class GameUI {
       const r = RANKS[card.rank - 1];
       const s = SUIT_SYM[card.suit];
       cardEl.innerHTML =
-        `<span class="card-corner top-left">${r}<br>${s}</span>` +
+        `<span class="card-corner top-left">${r}${s}</span>` +
         `<span class="card-center">${s}</span>` +
-        `<span class="card-corner bottom-right">${r}<br>${s}</span>`;
+        `<span class="card-corner bottom-right">${r}${s}</span>`;
       ghost.appendChild(cardEl);
     });
 
