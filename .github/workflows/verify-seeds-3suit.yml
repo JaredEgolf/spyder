@@ -1,0 +1,80 @@
+name: Verify Seeds – 3 Suit
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: Number of NEW verified seeds to add
+        default: '50'
+        required: false
+      start:
+        description: 'First seed to try (leave blank to auto-continue from last run)'
+        default: ''
+        required: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    # 3-suit beam search: slightly harder than 2-suit; give generous headroom
+    timeout-minutes: 90
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Determine start seed
+        id: start
+        run: |
+          if [ -n "${{ inputs.start }}" ]; then
+            echo "seed=${{ inputs.start }}" >> "$GITHUB_OUTPUT"
+          else
+            NEXT=$(node -e "
+              const src = require('fs').readFileSync('game.js','utf8');
+              const m = src.match(/3:\s*\[([\d,\s]*)\]/);
+              const arr = m && m[1].trim() ? m[1].split(',').map(Number) : [];
+              console.log(arr.length ? Math.max(...arr) + 1 : 0);
+            ")
+            echo "seed=$NEXT" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find verified seeds
+        run: |
+          echo "Starting from seed ${{ steps.start.outputs.seed }}"
+          node tools/verify-seeds.js \
+            --suits 3 \
+            --count ${{ inputs.count }} \
+            --start ${{ steps.start.outputs.seed }} \
+            --timeout 80 \
+            --output seeds-3suit.json
+
+      - name: Show results
+        if: always()
+        run: cat seeds-3suit.json 2>/dev/null || echo "(no output file)"
+
+      - name: Patch game.js (merge with existing)
+        if: always()
+        run: |
+          [ -f seeds-3suit.json ] && \
+            node tools/patch-seeds.js --suits 3 --seeds seeds-3suit.json --merge || \
+            echo "No seeds file to patch"
+
+      - name: Upload seeds artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeds-3suit
+          path: seeds-3suit.json
+
+      - name: Commit updated seeds
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add game.js
+          git diff --staged --quiet && echo "No changes to commit" || \
+            git commit -m "chore: update verified 3-suit seeds [skip ci]" && git push

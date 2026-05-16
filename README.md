@@ -6,8 +6,8 @@ A classic Spider Solitaire card game playable directly in your browser — no in
 
 ## Features
 
-- **Three difficulty levels** — 1 suit (beginner), 2 suits (intermediate), 4 suits (expert)
-- **Guaranteed solvable deals** — 1-suit and 2-suit games are drawn from a curated library of pre-verified seeds, so every deal you're given has a known winning solution
+- **Four difficulty levels** — 1 suit (beginner), 2 suits (intermediate), 3 suits (advanced), 4 suits (expert)
+- **Guaranteed solvable deals** — 1-suit, 2-suit, and 3-suit games are drawn from a curated library of pre-verified seeds, so every deal you're given has a known winning solution
 - **Shareable seeds** — the seed number is shown in the header; click it to copy a link-friendly ID so you can replay or share any specific deal
 - **Drag & drop** — click or drag cards to move them
 - **Undo** — unlimited undo (Ctrl+Z)
@@ -42,7 +42,7 @@ A classic Spider Solitaire card game playable directly in your browser — no in
 
 ## Seed Library
 
-1-suit and 2-suit deals are drawn from a curated list of pre-verified seeds stored in `VERIFIED_SEEDS` inside `game.js`. Every seed in the list has been confirmed solvable by an offline beam-search solver before being committed.
+1-suit, 2-suit, and 3-suit deals are drawn from a curated list of pre-verified seeds stored in `VERIFIED_SEEDS` inside `game.js`. Every seed in the list has been confirmed solvable by an offline beam-search solver before being committed.
 
 To grow the library, trigger one of the manual GitHub Actions workflows:
 
@@ -50,6 +50,7 @@ To grow the library, trigger one of the manual GitHub Actions workflows:
 |---|---|---|
 | **Verify Seeds – 1 Suit** | 50 | Completes in < 1 minute |
 | **Verify Seeds – 2 Suit** | 50 | ~15–20 minutes |
+| **Verify Seeds – 3 Suit** | 50 | ~30–60 minutes |
 | **Verify Seeds – 4 Suit** | 20 | Up to 4 hours; hard to verify |
 
 Each run automatically continues from where the last one left off and merges new seeds into `game.js` via a commit. You can also run the tool locally:

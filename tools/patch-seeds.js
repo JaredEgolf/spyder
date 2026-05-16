@@ -33,7 +33,7 @@ const seedFile = getArg('seeds', 'seeds.json');
 const gameFile = getArg('game', path.join(__dirname, '..', 'game.js'));
 const merge    = hasFlag('merge');
 
-if (![1, 2, 4].includes(suits)) {
+if (![1, 2, 3, 4].includes(suits)) {
   console.error('--suits must be 1, 2, or 4');
   process.exit(1);
 }

@@ -42,7 +42,7 @@ const OUTPUT     = getArg('output', null);
 // Lets the process exit cleanly before a CI job ceiling kills it.
 const TIMEOUT_MS = getArg('timeout', null) ? parseInt(getArg('timeout')) * 60_000 : null;
 
-if (![1, 2, 4].includes(NUM_SUITS)) {
+if (![1, 2, 3, 4].includes(NUM_SUITS)) {
   console.error('--suits must be 1, 2, or 4');
   process.exit(1);
 }
@@ -65,6 +65,7 @@ function mulberry32(seed) {
 function suitSets(numSuits) {
   if (numSuits === 1) return Array(8).fill('spades');
   if (numSuits === 2) return [...Array(4).fill('spades'), ...Array(4).fill('hearts')];
+  if (numSuits === 3) return [...Array(3).fill('spades'), ...Array(3).fill('hearts'), ...Array(2).fill('diamonds')];
   return ['spades','spades','hearts','hearts','diamonds','diamonds','clubs','clubs'];
 }
 
