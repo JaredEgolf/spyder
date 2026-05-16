@@ -12,6 +12,12 @@ on:
         default: ''
         required: false
 
+# Only one run at a time — concurrent runs would read the same start seed,
+# explore overlapping ranges, then race to commit.
+concurrency:
+  group: verify-seeds-1suit
+  cancel-in-progress: false
+
 jobs:
   verify:
     runs-on: ubuntu-latest
