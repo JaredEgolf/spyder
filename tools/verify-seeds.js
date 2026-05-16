@@ -331,16 +331,21 @@ function evaluateState(tableau, completed, numSuits) {
 }
 
 // ---------------------------------------------------------------------------
-// Beam search solver — used for 2-suit and 4-suit
+// Beam search solver — used for 2-suit, 3-suit, and 4-suit.
+// noiseSeed: when non-null, adds small random perturbations to move scores so
+// independent restarts explore different paths.  Wins still require genuine
+// K→A same-suit sequences via drainComplete — no correctness impact.
 // ---------------------------------------------------------------------------
-function beamSolve(numSuits, seed) {
-  const BEAM_WIDTH = numSuits === 2 ? 1200 : 2000;
-  const MAX_NODES  = numSuits === 2 ? 5000000 : 8000000;
+function beamSolve(numSuits, seed, noiseSeed = null) {
+  const BEAM_WIDTH = numSuits <= 2 ? 1200 : 2000;
+  const MAX_NODES  = numSuits <= 2 ? 5000000 : 8000000;
 
-  // Fixed-size open-addressing hash table — avoids Map's memory overhead.
-  // Each slot stores { key: Int32, val: Int32 }.  Collisions just mean we
-  // re-explore some states (correctness preserved, slight extra work).
-  const TABLE_BITS = 20;           // 2^20 = 1,048,576 slots ≈ 8 MB per worker
+  // Larger hash table for harder difficulties dramatically reduces collision
+  // rate, improving state-deduplication quality.  Memory per worker:
+  //   2-suit  2^20 = 1M slots ≈  8 MB
+  //   3-suit  2^21 = 2M slots ≈ 16 MB
+  //   4-suit  2^22 = 4M slots ≈ 32 MB  (was 2^20 = ~8 collisions/slot)
+  const TABLE_BITS = numSuits === 4 ? 22 : numSuits === 3 ? 21 : 20;
   const TABLE_SIZE = 1 << TABLE_BITS;
   const TABLE_MASK = TABLE_SIZE - 1;
   const tblKeys = new Int32Array(TABLE_SIZE);  // 0 = empty sentinel
@@ -356,6 +361,8 @@ function beamSolve(numSuits, seed) {
     tblVals[slot] = v;
   }
 
+  const noiseRng = noiseSeed !== null ? mulberry32(noiseSeed) : null;
+
   const { tableau: t0, stock: s0 } = makeDeal(numSuits, seed);
   let beam = [{ tableau: t0, stock: s0, completed: 0,
                 score: evaluateState(t0, 0, numSuits) }];
@@ -370,7 +377,7 @@ function beamSolve(numSuits, seed) {
     for (const state of beam) {
       if (state.completed >= 8) return true;
 
-      for (const move of getMoves(state.tableau, state.stock, null)) {
+      for (const move of getMoves(state.tableau, state.stock, noiseRng)) {
         const { tableau: t2, stock: s2 } = cloneState(state.tableau, state.stock);
         const c2 = state.completed + applyMove(t2, s2, move);
         if (c2 >= 8) return true;
@@ -463,7 +470,7 @@ function playTrial(tableau, stock, noiseRng, randomPlay) {
 // Verify a seed: true if any trial succeeds
 // ---------------------------------------------------------------------------
 function verifySeed(numSuits, seed) {
-  // Beam search handles 2-suit and 4-suit; greedy trials are fast enough for 1-suit
+  // Beam search handles 2-suit, 3-suit, and 4-suit; greedy trials for 1-suit.
   if (numSuits > 1) return beamSolve(numSuits, seed);
 
   const { tableau: t0, stock: s0 } = makeDeal(numSuits, seed);
