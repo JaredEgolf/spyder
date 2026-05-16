@@ -4,6 +4,8 @@ A classic Spider Solitaire card game playable directly in your browser — no in
 
 **[▶ Play Now](https://jaredegolf.github.io/spyder/)**
 
+![3-suit gameplay](screenshots/3-suit.png)
+
 ## Features
 
 - **Four difficulty levels** — 1 suit (beginner), 2 suits (intermediate), 3 suits (advanced), 4 suits (expert)
