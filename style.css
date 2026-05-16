@@ -73,6 +73,18 @@ body {
   opacity: 1;
 }
 
+.seed-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#restart-btn {
+  padding: 2px 8px;
+  font-size: 0.8em;
+  opacity: 0.85;
+}
+
 .header-right {
   display: flex;
   gap: 8px;

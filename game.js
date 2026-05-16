@@ -300,6 +300,7 @@ class GameUI {
 
   _setupControls() {
     document.getElementById('new-game-btn').addEventListener('click', () => this.newGame(this.numSuits));
+    document.getElementById('restart-btn').addEventListener('click', () => this.newGame(this.numSuits, this.game.seed));
     document.getElementById('undo-btn').addEventListener('click', () => this._undo());
     document.getElementById('hint-btn').addEventListener('click', () => this._showHint());
     document.getElementById('play-again-btn').addEventListener('click', () => {
@@ -340,6 +341,7 @@ class GameUI {
       if (e.key === 'z' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); this._undo(); }
       if (e.key === 'h' || e.key === 'H') this._showHint();
       if (e.key === 'n' || e.key === 'N') this.newGame(this.numSuits);
+      if (e.key === 'r' || e.key === 'R') this.newGame(this.numSuits, this.game.seed);
       if (e.key === 'Escape') this._clearSelection();
     });
   }
